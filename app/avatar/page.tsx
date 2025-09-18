@@ -2,9 +2,8 @@
 
 import React, { useState } from 'react';
 import Upload from '@/components/Upload';
-import StyleSelector from '@/components/StyleSelector';
-import PhraseSelector from '@/components/PhraseSelector';
-import { uploadImageAndGenerate } from '@/lib/fal';
+import { endlessSommarPresets } from '@/data/endlessPresets'; // if using preset list
+// Or define in the file below
 
 const styles = ['Vintage Travel Poster', 'Modern Minimal', 'Riviera Chic', 'Festival Glow'];
 const palettes = ['Pastels', 'Neon Brights', 'Earth Tones', 'Monochrome'];
@@ -13,19 +12,19 @@ const moods = ['Dreamy', 'Playful', 'Romantic', 'Energetic'];
 
 export default function AvatarPage() {
   const [image, setImage] = useState<string | null>(null);
-  const [style, setStyle] = useState<string>('');
-  const [palette, setPalette] = useState<string>('');
-  const [era, setEra] = useState<string>('');
-  const [mood, setMood] = useState<string>('');
+  const [style, setStyle] = useState('');
+  const [palette, setPalette] = useState('');
+  const [era, setEra] = useState('');
+  const [mood, setMood] = useState('');
   const [generating, setGenerating] = useState(false);
   const [output, setOutput] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const buildPrompt = () => {
     return `
-An award winning portrait, inspired by ${style.toLowerCase()}, high fashion.
+An award-winning portrait, inspired by ${style}, high fashion.
 ${palette} color palette, ${mood.toLowerCase()}, subtle halftones, sunlit summer atmosphere.
-Graphic but elegant, balanced, timeless summer aesthetic, ${era}, cinematic, 4k, crisp, depth.
+Graphic but elegant, balanced, timeless summer aesthetic, ${era}, cinematic, 4k, crisp, depth of field.
     `.trim();
   };
 
@@ -49,14 +48,28 @@ Graphic but elegant, balanced, timeless summer aesthetic, ${era}, cinematic, 4k,
     setGenerating(true);
     setError(null);
     const prompt = buildPrompt();
+    const file = dataURLtoFile(image, 'avatar.jpg');
 
     try {
-      const file = dataURLtoFile(image, 'avatar.jpg');
-      const resultUrl = await uploadImageAndGenerate(prompt, file);
-      setOutput(resultUrl);
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        body: JSON.stringify({
+          file: image,
+          styles: [style],
+          isCompetition: false,
+          prompt
+        }),
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      const data = await res.json();
+      if (data?.imageUrl) {
+        setOutput(data.imageUrl);
+      } else {
+        throw new Error(data?.error || 'No image returned');
+      }
     } catch (err: any) {
-      console.error(err);
-      setError('Something went wrong. Try again.');
+      setError(err.message || 'Something went wrong.');
     } finally {
       setGenerating(false);
     }
@@ -67,13 +80,11 @@ Graphic but elegant, balanced, timeless summer aesthetic, ${era}, cinematic, 4k,
       <h1 className="text-3xl font-bold mb-6 text-center">Create Your Endless Sommar Avatar</h1>
 
       <div className="max-w-3xl mx-auto space-y-6">
-        {/* Upload */}
         <Upload onUpload={(base64) => setImage(base64)} />
 
-        {/* Form Fields */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="font-medium">Summer Style</label>
+            <label className="font-medium">Style</label>
             <select value={style} onChange={(e) => setStyle(e.target.value)} className="w-full border p-2 rounded">
               <option value="">Select...</option>
               {styles.map((s) => <option key={s}>{s}</option>)}
@@ -87,7 +98,7 @@ Graphic but elegant, balanced, timeless summer aesthetic, ${era}, cinematic, 4k,
             </select>
           </div>
           <div>
-            <label className="font-medium">Era Vibe</label>
+            <label className="font-medium">Era</label>
             <select value={era} onChange={(e) => setEra(e.target.value)} className="w-full border p-2 rounded">
               <option value="">Select...</option>
               {eras.map((e) => <option key={e}>{e}</option>)}
@@ -102,7 +113,6 @@ Graphic but elegant, balanced, timeless summer aesthetic, ${era}, cinematic, 4k,
           </div>
         </div>
 
-        {/* Generate Button */}
         <div className="text-center mt-4">
           <button
             onClick={handleGenerate}
@@ -113,10 +123,8 @@ Graphic but elegant, balanced, timeless summer aesthetic, ${era}, cinematic, 4k,
           </button>
         </div>
 
-        {/* Error */}
         {error && <p className="text-red-500 text-center">{error}</p>}
 
-        {/* Output Image */}
         {output && (
           <div className="mt-6">
             <h2 className="text-center font-semibold mb-2">Your Endless Sommar Avatar:</h2>

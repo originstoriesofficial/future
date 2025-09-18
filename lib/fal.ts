@@ -1,7 +1,12 @@
 import { fal } from "@fal-ai/client";
 
+// Fail fast if the env variable is missing
+if (!process.env.FAL_KEY) {
+  throw new Error("FAL_KEY environment variable is missing.");
+}
+
 fal.config({
-  credentials: process.env.NEXT_PUBLIC_FAL_KEY || "",
+  credentials: process.env.FAL_KEY,
 });
 
 export async function uploadImageAndGenerate(prompt: string, file: File) {

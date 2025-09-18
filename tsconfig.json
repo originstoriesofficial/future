@@ -1,18 +1,30 @@
 {
-    "compilerOptions": {
-      "jsx": "react-jsx",
-      "baseUrl": ".",
-      "paths": {
-        "@/*": ["./*"]
-      },
-      "moduleResolution": "node",
-      "target": "esnext",
-      "module": "esnext",
-      "lib": ["dom", "esnext"],
-      "esModuleInterop": true,
-      "forceConsistentCasingInFileNames": true,
-      "strict": true,
-      "skipLibCheck": true
-    }
-  }
-  
+  "compilerOptions": {
+    "jsx": "preserve",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["app/*"]  // ✅ Point alias @/ to app/
+    },
+    "moduleResolution": "node",
+    "target": "esnext",
+    "module": "esnext",
+    "lib": ["dom", "esnext"],
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "allowJs": true,
+    "noEmit": true,
+    "incremental": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "plugins": [{ "name": "next" }]
+  },
+  "include": [
+    "next-env.d.ts",
+    ".next/types/**/*.ts",
+    "**/*.ts",
+    "**/*.tsx"
+  ],
+  "exclude": ["node_modules"]
+}
