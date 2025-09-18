@@ -1,9 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import Upload from '@/components/Upload';
-import { endlessSommarPresets } from '@/data/endlessPresets'; // if using preset list
-// Or define in the file below
+import Upload from '../../components/Upload';
+import { endlessSommarPresets } from '../data/endlessPresets';
 
 const styles = ['Vintage Travel Poster', 'Modern Minimal', 'Riviera Chic', 'Festival Glow'];
 const palettes = ['Pastels', 'Neon Brights', 'Earth Tones', 'Monochrome'];
